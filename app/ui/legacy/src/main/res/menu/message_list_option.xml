@@ -10,6 +10,14 @@
 
     <!-- MessageList -->
     <item
+        android:id="@+id/testing1"
+        android:icon="?attr/iconActionFlag"
+        android:title="@string/about_title"
+        android:visible="true"
+        app:showAsAction="always" />
+
+    <!-- MessageList -->
+    <item
         android:id="@+id/search"
         android:icon="?attr/iconActionSearch"
         android:title="@string/search_action"
