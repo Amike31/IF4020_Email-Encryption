@@ -1,4 +1,4 @@
-package com.fsck.k9.cryptographic
+package com.fsck.k9.ui.cryptographic
 
 class Keccak {
     fun keccak256(message: ByteArray): ByteArray {

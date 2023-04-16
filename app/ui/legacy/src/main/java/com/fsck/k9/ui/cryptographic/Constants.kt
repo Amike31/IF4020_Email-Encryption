@@ -1,4 +1,4 @@
-package com.fsck.k9.cryptographic
+package com.fsck.k9.ui.cryptographic
 
 object Constants {
     val ENCODING = "utf-8"

@@ -1,7 +1,7 @@
-package com.fsck.k9.cryptographic
+package com.fsck.k9.ui.cryptographic
 
-import com.fsck.k9.cryptographic.Constants.BOX_DIM
-import com.fsck.k9.cryptographic.Constants.S_BOX
+import com.fsck.k9.ui.cryptographic.Constants.BOX_DIM
+import com.fsck.k9.ui.cryptographic.Constants.S_BOX
 import java.lang.Math.floor
 
 object BC_Utils {

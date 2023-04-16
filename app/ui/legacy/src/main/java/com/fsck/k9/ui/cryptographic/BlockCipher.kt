@@ -1,4 +1,4 @@
-package com.fsck.k9.cryptographic
+package com.fsck.k9.ui.cryptographic
 
 class BlockCipher {
     fun encrypt(plaintext: String, external_key: String): String{
@@ -32,11 +32,11 @@ class BlockCipher {
                 // b) Do XOR with subkey
                 val xor_str = BC_Utils.xor_two_block(changed, subkeys_list[i])
                 // c) Do Substraction for each 4bits by x
-                val substracted = BC_Utils.substract_each_4bits_of_block_by_x(xor_str, x=i, addition=false)
+                val substracted = BC_Utils.substract_each_4bits_of_block_by_x(xor_str, x = i, addition = false)
                 // d) Do Substitution by S_BOX
                 val subs_str = BC_Utils.block_substitution_by_sBox(substracted)
                 // e) Do Block Shifting (permutation alt)
-                val shifted_str = BC_Utils.block_shifting(subs_str, right=false)
+                val shifted_str = BC_Utils.block_shifting(subs_str, right = false)
 
                 result_block = shifted_str
             }
@@ -80,10 +80,10 @@ class BlockCipher {
             // It be done for 16 iterations (16 subkeys)
             for (i in 0 until 16){
                 // Algorithm is the same as in encrypt.py, but in reverse order
-                val reverse_shift = BC_Utils.block_shifting(result_block,right = true)
+                val reverse_shift = BC_Utils.block_shifting(result_block, right = true)
                 val reverse_subs = BC_Utils.reverse_block_substitution(reverse_shift)
-                val addited = BC_Utils.substract_each_4bits_of_block_by_x(reverse_subs, x=(15-i), addition=true)
-                val reXor_str = BC_Utils.xor_two_block(addited, subkeys_list[15-i])
+                val addited = BC_Utils.substract_each_4bits_of_block_by_x(reverse_subs, x = (15 - i), addition = true)
+                val reXor_str = BC_Utils.xor_two_block(addited, subkeys_list[15 - i])
                 val changed = BC_Utils.LR_block_change(reXor_str)
                 result_block = changed
             }
