@@ -3,7 +3,12 @@ import java.math.BigInteger
 import java.security.SecureRandom
 
 class Ecc {
-    private val g = Point(Constants.Gx, Constants.Gy)
+    // Base Point
+    private val gx = BigInteger("188DA80EB03090F67CBF20EB43A18800F4FF0AFD82FF1012", 16)
+    private val gy = BigInteger("07192B95FFC8DA78631011ED6B24CDD573F977A11E794811", 16)
+    private val g = Point(gx, gy)
+    // Modulos
+    private val n = BigInteger("FFFFFFFFFFFFFFFFFFFFFFFF99DEF836146BC9B1B4D22831", 16)
 
     // Generate ECC key pair with a given private key value (d)
     private fun generateKeyPair(d: BigInteger): EccKeyPair {
@@ -27,7 +32,7 @@ class Ecc {
     // Generate Random K for mapping the byte of message to an Elliptic Curve Point
     private fun generateRandomK(): BigInteger {
         val random = SecureRandom()
-        val modulo = Constants.n
+        val modulo = n
         var k: BigInteger
 
         // Loop until a valid k value is generated
