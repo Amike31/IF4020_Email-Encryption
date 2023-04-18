@@ -14,6 +14,7 @@ class FolderIconProvider(private val theme: Resources.Theme) {
     private val iconFolderArchiveResId: Int
     private val iconFolderSpamResId: Int
     var iconFolderResId: Int
+    var iconKeyGenerator: Int
 
     init {
         iconFolderInboxResId = getResId(R.attr.iconFolderInbox)
@@ -24,6 +25,7 @@ class FolderIconProvider(private val theme: Resources.Theme) {
         iconFolderArchiveResId = getResId(R.attr.iconFolderArchive)
         iconFolderSpamResId = getResId(R.attr.iconFolderSpam)
         iconFolderResId = getResId(R.attr.iconFolder)
+        iconKeyGenerator = getResId(R.attr.iconActionSave)
     }
 
     private fun getResId(resAttribute: Int): Int {

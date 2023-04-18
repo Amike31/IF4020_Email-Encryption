@@ -272,6 +272,15 @@ class K9Drawer(private val parent: MessageList, savedInstanceState: Bundle?) : K
     private fun addFooterItems() {
         sliderView.addStickyFooterItem(
             PrimaryDrawerItem().apply {
+                nameRes = R.string.key_generator
+                iconRes = folderIconProvider.iconKeyGenerator
+                identifier = DRAWER_ID_PREFERENCES // Need change to activity get key
+                isSelectable = false
+            }
+        )
+
+        sliderView.addStickyFooterItem(
+            PrimaryDrawerItem().apply {
                 nameRes = R.string.folders_action
                 iconRes = folderIconProvider.iconFolderResId
                 identifier = DRAWER_ID_FOLDERS

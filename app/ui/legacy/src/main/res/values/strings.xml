@@ -10,6 +10,7 @@
     <string name="shortcuts_title">K-9 Accounts</string>
     <string name="unread_widget_label">K-9 Unread</string>
 
+    <string name="key_generator">Generate a key</string>
 
     <!-- Used in the about dialog -->
     <string name="app_authors">The K-9 Dog Walkers</string>
