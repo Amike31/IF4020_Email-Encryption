@@ -3,6 +3,7 @@ package com.fsck.k9.ui.cryptographic
 import android.util.Log
 import java.math.BigInteger
 import java.util.*
+import kotlin.math.absoluteValue
 
 class ECDSA {
     private val a = BigInteger("0", 16)
@@ -24,7 +25,11 @@ class ECDSA {
         return KeyPair(privateKey, publicKey)
     }
     fun sign(privateKey: BigInteger, message: String): Pair<BigInteger,BigInteger> {
-        val hashMessage = BigInteger(hash.keccak(256,512, message))
+        // bitlength of curve.n
+        val bitLength = curve.n.bitLength()
+        var hashMessage = BigInteger(hash.keccak(256,512, message)).abs()
+        // get the bitlength leftmost bits of the hashMessage
+        hashMessage = hashMessage.shiftRight((hashMessage.bitLength() - bitLength).absoluteValue)
 //        Log.d("", hashMessage.toString())
         // val hashMessage = message.hashCode().toBigInteger()
         var k : BigInteger
@@ -39,21 +44,40 @@ class ECDSA {
                 val c1 = g * k
                 r = c1.x.mod(curve.n)
             } while (r == BigInteger.ZERO)
-            s = (hashMessage + privateKey * r) * k.modInverse(curve.n) % curve.n
+            s = ( (hashMessage + privateKey * r) * k.modInverse(curve.n) ).mod(curve.n)
         } while (s == BigInteger.ZERO)
+
+//        // if r or s is negative, convert to positive using two's complement
+//        if (r.signum() == -1) {
+//            val bitRLength = r.bitLength()
+//            r = r.add(BigInteger.ONE.shiftLeft(bitRLength)).abs()
+//        }
+//        if (s.signum() == -1) {
+//            val bitSLength = s.bitLength()
+//            s = s.add(BigInteger.ONE.shiftLeft(bitSLength)).abs()
+//        }
         return Pair(r,s)
     }
 
     fun verify(publicKey: Point, message: String, signature: Pair<BigInteger,BigInteger>): Boolean {
         // Verify the signature
-        val hashMessage = BigInteger(hash.keccak(256,512, message))
+        val bitLength = curve.n.bitLength()
+        var hashMessage = BigInteger(hash.keccak(256,512, message)).abs()
+        // get the bitlength leftmost bits of the hashMessage
+        hashMessage = hashMessage.shiftRight((hashMessage.bitLength() - bitLength).absoluteValue)
         // val hashMessage = message.hashCode().toBigInteger()
         val w = signature.second.modInverse(curve.n)
-        val u1 = (hashMessage * w) % curve.n
-        val u2 = (signature.first * w) % curve.n
-        val xCoordinate = (g * u1 + publicKey * u2).x
-        val v = xCoordinate.mod(curve.n)
-        return v == signature.first
+        val u1 = (hashMessage * w).mod(curve.n)
+        val u2 = (signature.first * w).mod(curve.n)
+        val coordinate = (g * u1 + publicKey * u2)
+        val v = coordinate.x
+
+        // if v is negative, convert to positive using two's complement
+//        if (v.signum() == -1) {
+//            val bitVLength = v.bitLength()
+//            v.add(BigInteger.ONE.shiftLeft(bitVLength)).abs()
+//        }
+        return (v).mod(curve.n) == (signature.first).mod(curve.n)
     }
 
     // Main program Example ::
