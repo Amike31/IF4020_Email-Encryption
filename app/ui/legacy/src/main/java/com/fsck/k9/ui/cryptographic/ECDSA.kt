@@ -18,6 +18,10 @@ class ECDSA {
     // Hasher
     private val hash = Keccak()
 
+    fun generateKeyPair(privateKey: BigInteger): KeyPair {
+        val publicKey = g * privateKey
+        return KeyPair(privateKey, publicKey)
+    }
     fun sign(privateKey: BigInteger, message: String): Pair<BigInteger,BigInteger> {
         val hashMessage = BigInteger(hash.keccak(256,512, message))
         // val hashMessage = message.hashCode().toBigInteger()
