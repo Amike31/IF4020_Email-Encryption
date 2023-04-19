@@ -18,6 +18,7 @@ import android.view.View.OnCreateContextMenuListener
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebView.HitTestResult
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
@@ -58,6 +59,9 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
     private lateinit var unsignedTextDivider: View
     private lateinit var unsignedText: TextView
     private lateinit var signatureText: TextView
+    private lateinit var verifyButton: Button
+    private lateinit var messageText: String
+    private lateinit var signatureResult: Pair<BigInteger, BigInteger>
     private val ecdsa: ECDSA = ECDSA()
 
     private var isShowingPictures = false
@@ -90,6 +94,15 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         unsignedTextDivider = findViewById(R.id.message_unsigned_divider)
         unsignedText = findViewById(R.id.message_unsigned_text)
         signatureText = findViewById(R.id.signature_text)
+        verifyButton = findViewById(R.id.verifyButton)
+
+        verifyButton.setOnClickListener {
+            val keyPair = ecdsa.generateKeyPair(BigInteger("1234567890"))
+            val isSame = ecdsa.verify(keyPair.publicKey, messageText, signatureResult)
+//            count = count == N ? 0 : count + 1;
+            val str = if(!isSame) "Signature isn't Valid" else "Signature is Valid"
+            Toast.makeText(context, "$str", Toast.LENGTH_LONG).show()
+        }
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenuInfo?) {
@@ -393,7 +406,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         resetView()
         renderAttachments(messageViewInfo)
 
-        var messageText = messageViewInfo.text
+        messageText = messageViewInfo.text
         if (messageText != null && !isShowingPictures) {
             if (Utility.hasExternalImages(messageText)) {
                 if (loadPictures) {
@@ -415,7 +428,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
 
         unsignedTextContainer.visibility = VISIBLE
         unsignedTextDivider.visibility = GONE
-        val signatureResult = ecdsa.sign(BigInteger("1234567890"), messageText)
+        signatureResult = ecdsa.sign(BigInteger("1234567890"), messageText)
         val r = signatureResult.first
         val s = signatureResult.second
         val begin = "--- BEGIN of ECDSA ---"
