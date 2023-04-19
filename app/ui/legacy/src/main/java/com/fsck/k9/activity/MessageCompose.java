@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
@@ -73,6 +74,7 @@ import com.fsck.k9.activity.compose.RecipientPresenter;
 import com.fsck.k9.activity.compose.ReplyToPresenter;
 import com.fsck.k9.activity.compose.ReplyToView;
 import com.fsck.k9.activity.compose.SaveMessageTask;
+import com.fsck.k9.activity.key_generator.KeyPassBcActivity;
 import com.fsck.k9.activity.misc.Attachment;
 import com.fsck.k9.autocrypt.AutocryptDraftStateHeaderParser;
 import com.fsck.k9.contact.ContactIntentHelper;
@@ -260,6 +262,8 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
     private boolean sendMessageHasBeenTriggered = false;
 
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -422,14 +426,18 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                     message2 = message2.substring(0, message2.indexOf(begin));
                 }
                 // Key for blockCipher
-                String blockCipherKey = "Aku cinta kamu Kriptografi";
-                // console to logcat the message2
-                Log.d("message2", message2);
-                // encrypt the message
-                String encryptedMessage = blockCipher.encrypt(message2, blockCipherKey);
-                messageContentView.setText(encryptedMessage);
-                Log.d("isi semua", messageContentView.getText().toString());
-                signButton.performClick();
+                Intent intent = new Intent(MessageCompose.this, KeyPassBcActivity.class);
+                intent.putExtra("message2",message2);
+                startActivityForResult(intent, 1000);
+//
+//                String blockCipherKey = "Aku cinta kamu Kriptografi";
+//                // console to logcat the message2
+//                Log.d("message2", message2);
+//                // encrypt the message
+//                String encryptedMessage = blockCipher.encrypt(message2, blockCipherKey);
+//                messageContentView.setText(encryptedMessage);
+//                Log.d("isi semua", messageContentView.getText().toString());
+//                signButton.performClick();
             }
         });
 
@@ -911,41 +919,50 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        isInSubActivity = false;
+        if (requestCode != 1000) {
+            isInSubActivity = false;
 
-        // Only if none of the high 16 bits are set it might be one of our request codes
-        if ((requestCode & REQUEST_CODE_MASK) == 0) {
-            if ((requestCode & REQUEST_MASK_MESSAGE_BUILDER) == REQUEST_MASK_MESSAGE_BUILDER) {
-                requestCode ^= REQUEST_MASK_MESSAGE_BUILDER;
-                if (currentMessageBuilder == null) {
-                    Timber.e("Got a message builder activity result for no message builder, " +
+            // Only if none of the high 16 bits are set it might be one of our request codes
+            if ((requestCode & REQUEST_CODE_MASK) == 0) {
+                if ((requestCode & REQUEST_MASK_MESSAGE_BUILDER) == REQUEST_MASK_MESSAGE_BUILDER) {
+                    requestCode ^= REQUEST_MASK_MESSAGE_BUILDER;
+                    if (currentMessageBuilder == null) {
+                        Timber.e("Got a message builder activity result for no message builder, " +
                             "this is an illegal state!");
+                        return;
+                    }
+                    currentMessageBuilder.onActivityResult(requestCode, resultCode, data, this);
                     return;
                 }
-                currentMessageBuilder.onActivityResult(requestCode, resultCode, data, this);
-                return;
+
+                if ((requestCode & REQUEST_MASK_RECIPIENT_PRESENTER) == REQUEST_MASK_RECIPIENT_PRESENTER) {
+                    requestCode ^= REQUEST_MASK_RECIPIENT_PRESENTER;
+                    recipientPresenter.onActivityResult(requestCode, resultCode, data);
+                    return;
+                }
+
+                if ((requestCode & REQUEST_MASK_LOADER_HELPER) == REQUEST_MASK_LOADER_HELPER) {
+                    requestCode ^= REQUEST_MASK_LOADER_HELPER;
+                    messageLoaderHelper.onActivityResult(requestCode, resultCode, data);
+                    return;
+                }
+
+                if ((requestCode & REQUEST_MASK_ATTACHMENT_PRESENTER) == REQUEST_MASK_ATTACHMENT_PRESENTER) {
+                    requestCode ^= REQUEST_MASK_ATTACHMENT_PRESENTER;
+                    attachmentPresenter.onActivityResult(resultCode, requestCode, data);
+                    return;
+                }
             }
 
-            if ((requestCode & REQUEST_MASK_RECIPIENT_PRESENTER) == REQUEST_MASK_RECIPIENT_PRESENTER) {
-                requestCode ^= REQUEST_MASK_RECIPIENT_PRESENTER;
-                recipientPresenter.onActivityResult(requestCode, resultCode, data);
-                return;
-            }
-
-            if ((requestCode & REQUEST_MASK_LOADER_HELPER) == REQUEST_MASK_LOADER_HELPER) {
-                requestCode ^= REQUEST_MASK_LOADER_HELPER;
-                messageLoaderHelper.onActivityResult(requestCode, resultCode, data);
-                return;
-            }
-
-            if ((requestCode & REQUEST_MASK_ATTACHMENT_PRESENTER) == REQUEST_MASK_ATTACHMENT_PRESENTER) {
-                requestCode ^= REQUEST_MASK_ATTACHMENT_PRESENTER;
-                attachmentPresenter.onActivityResult(resultCode, requestCode, data);
-                return;
-            }
+            super.onActivityResult(requestCode, resultCode, data);
         }
-
-        super.onActivityResult(requestCode, resultCode, data);
+        else {
+            String message2 = data.getStringExtra("message2");
+            messageContentView.setText(message2);
+            Log.d("tag", message2);
+            Log.d("isi semua", messageContentView.getText().toString());
+            signButton.performClick();
+        }
     }
 
     private void onAccountChosen(Account account, Identity identity) {
