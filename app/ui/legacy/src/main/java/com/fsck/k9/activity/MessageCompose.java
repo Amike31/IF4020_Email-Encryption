@@ -113,6 +113,7 @@ import com.fsck.k9.ui.base.K9Activity;
 import com.fsck.k9.ui.base.ThemeManager;
 import com.fsck.k9.ui.compose.QuotedMessageMvpView;
 import com.fsck.k9.ui.compose.QuotedMessagePresenter;
+import com.fsck.k9.ui.cryptographic.BlockCipher;
 import com.fsck.k9.ui.cryptographic.ECDSA;
 import com.fsck.k9.ui.helper.SizeFormatter;
 import com.fsck.k9.ui.messagelist.DefaultFolderProvider;
@@ -234,11 +235,18 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private EditText subjectView;
     private EditText signatureView;
     private EditText messageContentView;
+
+
     private Button signButton;
     private Button encryptButton;
+    private BlockCipher blockCipher = new BlockCipher();
     private ECDSA ecdsa = new ECDSA();
-    private LinearLayout attachmentsView;
+    private String begin = "\n\n---    BEGIN of ECDSA    ---\n";
+    private String separator = "\n----------------------------------------\n";
+    private String end = "\n---    END of ECDSA    ---";
 
+
+    private LinearLayout attachmentsView;
     private String referencedMessageIds;
     private String repliedToMessageId;
 
@@ -387,9 +395,6 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String begin = "\n\n---    BEGIN of ECDSA    ---\n";
-                String separator = "\n----------------------------------------\n";
-                String end = "\n---    END of ECDSA    ---";
                 String message = messageContentView.getText().toString();
                 // If there is the signature, remove it
                 // first, check if the message contains the signature
@@ -403,6 +408,25 @@ public class MessageCompose extends K9Activity implements OnClickListener,
                 BigInteger r = (BigInteger) signatureResult.getFirst();
                 BigInteger s = (BigInteger) signatureResult.getSecond();
                 messageContentView.setText(message + begin + r + separator + s + end);
+            }
+        });
+
+        encryptButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get only the message
+                String message = messageContentView.getText().toString();
+                if (message.contains(begin) && message.contains(end)) {
+                    // get the message only without signature
+                    message = message.substring(0, message.indexOf(begin));
+                }
+                // Key for blockCipher
+                String blockCipherKey = "Aku cinta kamu Kriptografi";
+                // encrypt the message
+                String encryptedMessage = "";
+                encryptedMessage = blockCipher.encrypt(message, blockCipherKey);
+                messageContentView.setText(encryptedMessage);
+                signButton.performClick();
             }
         });
 
