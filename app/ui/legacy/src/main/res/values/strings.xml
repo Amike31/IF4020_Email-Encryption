@@ -10,7 +10,6 @@
     <string name="shortcuts_title">K-9 Accounts</string>
     <string name="unread_widget_label">K-9 Unread</string>
 
-    <string name="key_generator">Generate a key</string>
     <string name="signature_sign_key">Private key for Signature</string>
 
     <!-- Used in the about dialog -->
