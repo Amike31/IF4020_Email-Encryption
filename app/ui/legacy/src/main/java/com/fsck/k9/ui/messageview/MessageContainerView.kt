@@ -22,8 +22,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ShareCompat.IntentBuilder
-import androidx.core.view.isGone
-import androidx.core.view.isVisible
 import com.fsck.k9.contact.ContactIntentHelper
 import com.fsck.k9.helper.ClipboardManager
 import com.fsck.k9.helper.Utility
@@ -33,9 +31,11 @@ import com.fsck.k9.mailstore.AttachmentViewInfo
 import com.fsck.k9.mailstore.MessageViewInfo
 import com.fsck.k9.message.html.DisplayHtml
 import com.fsck.k9.ui.R
+import com.fsck.k9.ui.cryptographic.ECDSA
 import com.fsck.k9.view.MessageWebView
 import com.fsck.k9.view.MessageWebView.OnPageFinishedListener
 import com.fsck.k9.view.WebViewConfigProvider
+import java.math.BigInteger
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import org.koin.core.qualifier.named
@@ -57,6 +57,8 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
     private lateinit var unsignedTextContainer: View
     private lateinit var unsignedTextDivider: View
     private lateinit var unsignedText: TextView
+    private lateinit var signatureText: TextView
+    private val ecdsa: ECDSA = ECDSA()
 
     private var isShowingPictures = false
     private var currentHtmlText: String? = null
@@ -87,6 +89,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         unsignedTextContainer = findViewById(R.id.message_unsigned_container)
         unsignedTextDivider = findViewById(R.id.message_unsigned_divider)
         unsignedText = findViewById(R.id.message_unsigned_text)
+        signatureText = findViewById(R.id.signature_text)
     }
 
     override fun onCreateContextMenu(menu: ContextMenu, view: View, menuInfo: ContextMenuInfo?) {
@@ -390,7 +393,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         resetView()
         renderAttachments(messageViewInfo)
 
-        val messageText = messageViewInfo.text
+        var messageText = messageViewInfo.text
         if (messageText != null && !isShowingPictures) {
             if (Utility.hasExternalImages(messageText)) {
                 if (loadPictures) {
@@ -410,9 +413,18 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             onPageFinishedListener = onRenderingFinishedListener::onLoadFinished,
         )
 
+        unsignedTextContainer.visibility = VISIBLE
+        unsignedTextDivider.visibility = GONE
+        val signatureResult = ecdsa.sign(BigInteger("1234567890"), messageText)
+        val r = signatureResult.first
+        val s = signatureResult.second
+        val begin = "--- BEGIN of ECDSA ---"
+        val end = "--- END of ECDSA ---"
+        signatureText.text = "$begin\n\n$r\n\n$end"
+
         if (!messageViewInfo.extraText.isNullOrEmpty()) {
-            unsignedTextContainer.isVisible = true
-            unsignedTextDivider.isGone = hideUnsignedTextDivider
+            // unsignedTextContainer.isVisible = true
+            unsignedTextDivider.visibility = VISIBLE
             unsignedText.text = messageViewInfo.extraText
         }
     }
@@ -444,7 +456,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             onPageFinishedListener = null,
         )
 
-        unsignedTextContainer.isVisible = false
+        unsignedTextContainer.visibility = GONE
         unsignedText.text = ""
     }
 

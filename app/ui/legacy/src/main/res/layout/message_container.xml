@@ -62,6 +62,15 @@
             android:padding="8dp"
             tools:text="Unsigned text content"
             />
+        <TextView
+            android:id="@+id/signature_text"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:padding="8dp"
+            tools:text="Unsigned text content"
+            android:textColor="@color/design_default_color_primary"
+            android:textStyle="bold"
+            />
 
     </LinearLayout>
 
