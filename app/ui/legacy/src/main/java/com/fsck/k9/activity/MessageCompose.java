@@ -2,6 +2,7 @@ package com.fsck.k9.activity;
 
 
 import java.io.File;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewStub;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -111,12 +113,14 @@ import com.fsck.k9.ui.base.K9Activity;
 import com.fsck.k9.ui.base.ThemeManager;
 import com.fsck.k9.ui.compose.QuotedMessageMvpView;
 import com.fsck.k9.ui.compose.QuotedMessagePresenter;
+import com.fsck.k9.ui.cryptographic.ECDSA;
 import com.fsck.k9.ui.helper.SizeFormatter;
 import com.fsck.k9.ui.messagelist.DefaultFolderProvider;
 import com.fsck.k9.ui.permissions.K9PermissionUiHelper;
 import com.fsck.k9.ui.permissions.Permission;
 import com.fsck.k9.ui.permissions.PermissionUiHelper;
 
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.openintents.openpgp.OpenPgpApiManager;
 import org.openintents.openpgp.util.OpenPgpApi;
@@ -230,6 +234,10 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private EditText subjectView;
     private EditText signatureView;
     private EditText messageContentView;
+    private Button signButton;
+    private Button encryptButton;
+    private TextView signatureModif;
+    private ECDSA ecdsa = new ECDSA();
     private LinearLayout attachmentsView;
 
     private String referencedMessageIds;
@@ -339,6 +347,9 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         messageContentView = findViewById(R.id.message_content);
         messageContentView.getInputExtras(true).putBoolean("allowEmoji", true);
+        signButton = findViewById(R.id.button_Signature);
+        encryptButton = findViewById(R.id.button_Encrpyt);
+        signatureModif = findViewById(R.id.signatureModif);
 
         attachmentsView = findViewById(R.id.attachments);
 
@@ -374,6 +385,17 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         subjectView.setOnFocusChangeListener(this);
         messageContentView.setOnFocusChangeListener(this);
+        signButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = String.valueOf(messageContentView.getText());
+                BigInteger privateKey = new BigInteger("1234567890");
+                Pair signatureResult = ecdsa.sign(privateKey, message);
+                BigInteger r = (BigInteger) signatureResult.getFirst();
+                BigInteger s = (BigInteger) signatureResult.getSecond();
+                signatureModif.setText(r.toString());
+            }
+        });
 
         if (savedInstanceState != null) {
             /*

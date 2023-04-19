@@ -32,7 +32,8 @@ class ECDSA {
         do {
             do {
                 // Generate a random nonce (k) for signing
-                k = BigInteger(256, Random())
+               // k = BigInteger(256, Random())
+                k = BigInteger("2")
                 val c1 = g * k
                 r = c1.x.mod(curve.n)
             } while (r == BigInteger.ZERO)
