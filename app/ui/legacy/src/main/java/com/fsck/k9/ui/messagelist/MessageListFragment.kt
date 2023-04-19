@@ -33,6 +33,7 @@ import com.fsck.k9.Preferences
 import com.fsck.k9.SwipeAction
 import com.fsck.k9.activity.FolderInfoHolder
 import com.fsck.k9.activity.Search
+import com.fsck.k9.activity.key_generator.KeyGenActivity
 import com.fsck.k9.activity.misc.ContactPicture
 import com.fsck.k9.controller.MessageReference
 import com.fsck.k9.controller.MessagingController
@@ -63,6 +64,7 @@ import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 import timber.log.Timber
+
 
 private const val MAXIMUM_MESSAGE_SORT_OVERRIDES = 3
 private const val MINIMUM_CLICK_INTERVAL = 200L
@@ -811,6 +813,7 @@ class MessageListFragment :
     }
 
     private fun prepareMenu(menu: Menu) {
+//        menu.findItem(R.id.compose).isVisible = false
         menu.findItem(R.id.compose).isVisible = !isShowFloatingActionButton
         menu.findItem(R.id.set_sort).isVisible = true
         menu.findItem(R.id.select_all).isVisible = true
@@ -845,6 +848,7 @@ class MessageListFragment :
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.testing1 -> onKeyGenClicked()
             R.id.search_remote -> onRemoteSearch()
             R.id.compose -> onCompose()
             R.id.set_sort_date -> changeSort(SortType.SORT_DATE)
@@ -864,6 +868,13 @@ class MessageListFragment :
         }
 
         return true
+    }
+
+    private fun onKeyGenClicked(){
+        val intent = Intent(activity, KeyGenActivity::class.java)
+        print("something")
+        startActivity(intent)
+
     }
 
     private fun onSearchEverywhere() {
@@ -1833,6 +1844,8 @@ class MessageListFragment :
     }
 
     internal inner class ActionModeCallback : ActionMode.Callback {
+        // TESTING
+        private var keygen: MenuItem? = null
         private var selectAll: MenuItem? = null
         private var markAsRead: MenuItem? = null
         private var markAsUnread: MenuItem? = null
@@ -1842,6 +1855,7 @@ class MessageListFragment :
         private var disableFlag = false
 
         override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+            keygen = menu.findItem(R.id.testing1)
             selectAll = menu.findItem(R.id.select_all)
             markAsRead = menu.findItem(R.id.mark_as_read)
             markAsUnread = menu.findItem(R.id.mark_as_unread)

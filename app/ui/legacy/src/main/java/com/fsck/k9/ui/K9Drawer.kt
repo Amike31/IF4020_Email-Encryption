@@ -15,6 +15,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.fsck.k9.Account
 import com.fsck.k9.K9
 import com.fsck.k9.activity.MessageList
+import com.fsck.k9.activity.key_generator.KeyGenActivity
 import com.fsck.k9.controller.MessagingController
 import com.fsck.k9.controller.SimpleMessagingListener
 import com.fsck.k9.mailstore.DisplayFolder
@@ -350,8 +351,10 @@ class K9Drawer(private val parent: MessageList, savedInstanceState: Bundle?) : K
     }
 
     private fun handleItemClickListener(drawerItem: IDrawerItem<*>) {
+//        var keygenactivity = KeyGenActivity()
         when (drawerItem.identifier) {
             DRAWER_ID_PREFERENCES -> SettingsActivity.launch(parent)
+//            DRAWER_ID_PREFERENCES -> SettingsActivity.launch(keygenactivity)
             DRAWER_ID_FOLDERS -> parent.launchManageFoldersScreen()
             DRAWER_ID_UNIFIED_INBOX -> parent.openUnifiedInbox()
             else -> {
