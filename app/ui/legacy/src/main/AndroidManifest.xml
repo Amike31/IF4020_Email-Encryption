@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
@@ -47,7 +47,10 @@
 
     <application
         android:supportsRtl="true"
-        android:theme="@style/Theme.K9.Light">
+        android:theme="@style/Theme.K9.Light" >
+        <activity
+            android:name="com.fsck.k9.activity.key_generator.KeyPassBcActivity"
+            android:exported="false" />
         <activity
             android:name="com.fsck.k9.activity.key_generator.KeyGenActivity"
             android:exported="false" />

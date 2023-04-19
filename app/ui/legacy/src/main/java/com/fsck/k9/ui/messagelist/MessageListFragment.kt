@@ -872,7 +872,6 @@ class MessageListFragment :
 
     private fun onKeyGenClicked(){
         val intent = Intent(activity, KeyGenActivity::class.java)
-        print("something")
         startActivity(intent)
 
     }
