@@ -33,6 +33,7 @@ import com.fsck.k9.mailstore.AttachmentViewInfo
 import com.fsck.k9.mailstore.MessageViewInfo
 import com.fsck.k9.message.html.DisplayHtml
 import com.fsck.k9.ui.R
+import com.fsck.k9.ui.cryptographic.BlockCipher
 import com.fsck.k9.ui.cryptographic.ECDSA
 import com.fsck.k9.view.MessageWebView
 import com.fsck.k9.view.MessageWebView.OnPageFinishedListener
@@ -59,10 +60,19 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
     private lateinit var unsignedTextContainer: View
     private lateinit var unsignedTextDivider: View
     private lateinit var unsignedText: TextView
+    private lateinit var decryptedResult: TextView
+
     private lateinit var verifyButton: Button
     private lateinit var decryptButton: Button
     private lateinit var messageText: String
+    private val blockCipher = BlockCipher()
+    private var isDecrypted = false
     private val ecdsa: ECDSA = ECDSA()
+    private val htmlBeforeMessage = "<div dir=\"auto\">"
+    private val begin = "<br><br>---&nbsp;&nbsp;&nbsp; BEGIN of ECDSA&nbsp;&nbsp;&nbsp; ---<br>"
+    private val separator = "<hr>"
+    private val end = "<br>---&nbsp;&nbsp;&nbsp; END of ECDSA&nbsp;&nbsp;&nbsp; ---"
+
 
     private var isShowingPictures = false
     private var currentHtmlText: String? = null
@@ -95,12 +105,9 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         unsignedText = findViewById(R.id.message_unsigned_text)
         verifyButton = findViewById(R.id.verifyButton)
         decryptButton = findViewById(R.id.decryptButton)
+        decryptedResult = findViewById(R.id.decryptedResult)
 
         verifyButton.setOnClickListener {
-            val htmlBeforeMessage = "<div dir=\"auto\">"
-            val begin = "<br><br>---    BEGIN of ECDSA    ---<br>"
-            val separator = "<hr>"
-            val end = "<br>---    END of ECDSA    ---"
             // Separate the message and the signature
             val signatureText = messageText?.substringAfter(begin)?.substringBefore(end)
             val notNullSignature: String = signatureText ?: ""
@@ -112,6 +119,9 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
                 val messageOnly = messageText.substringAfter(htmlBeforeMessage).substringBefore(begin)
                 val r = notNullSignature.substringBefore(separator)
                 val s = notNullSignature.substringAfter(separator)
+                Log.d("Message", messageOnly)
+                Log.d("r", r)
+                Log.d("s", s)
                 // convert r and s to BigInteger then make a signature as a pair of r and s
                 val signature = Pair(BigInteger(r), BigInteger(s))
                 val keyPair = ecdsa.generateKeyPair(BigInteger("1234567890"))
@@ -121,6 +131,16 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
             }
             // divide the signature into r and s by the separator
 
+        }
+        decryptButton.setOnClickListener {
+            if (!isDecrypted) {
+                // Key for blockCipher
+                val blockCipherKey = "Aku cinta kamu Kriptografi"
+                val messageOnly = messageText.substringAfter(htmlBeforeMessage).substringBefore(begin)
+                val decryptedMessage = blockCipher.decrypt(messageOnly, blockCipherKey)
+                decryptedResult.text = decryptedMessage
+                isDecrypted = true
+            }
         }
     }
 
@@ -426,6 +446,7 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         renderAttachments(messageViewInfo)
 
         messageText = messageViewInfo.text
+        Log.d("MessageViewContainer", "messageText: $messageText")
         if (messageText != null && !isShowingPictures) {
             if (Utility.hasExternalImages(messageText)) {
                 if (loadPictures) {

@@ -31,6 +31,7 @@ import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -395,19 +396,19 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = messageContentView.getText().toString();
+                String message1 = messageContentView.getText().toString();
                 // If there is the signature, remove it
                 // first, check if the message contains the signature
-                if (message.contains(begin) && message.contains(end)) {
+                if (message1.contains(begin) && message1.contains(end)) {
                     // get the message only without signature
-                    message = message.substring(0, message.indexOf(begin));
+                    message1 = message1.substring(0, message1.indexOf(begin));
                 }
                 // add signature to the message
                 BigInteger privateKey = new BigInteger("1234567890");
-                Pair signatureResult = ecdsa.sign(privateKey, message);
+                Pair signatureResult = ecdsa.sign(privateKey, message1);
                 BigInteger r = (BigInteger) signatureResult.getFirst();
                 BigInteger s = (BigInteger) signatureResult.getSecond();
-                messageContentView.setText(message + begin + r + separator + s + end);
+                messageContentView.setText(message1 + begin + r + separator + s + end);
             }
         });
 
@@ -415,17 +416,19 @@ public class MessageCompose extends K9Activity implements OnClickListener,
             @Override
             public void onClick(View v) {
                 // Get only the message
-                String message = messageContentView.getText().toString();
-                if (message.contains(begin) && message.contains(end)) {
+                String message2 = messageContentView.getText().toString();
+                if (message2.contains(begin) && message2.contains(end)) {
                     // get the message only without signature
-                    message = message.substring(0, message.indexOf(begin));
+                    message2 = message2.substring(0, message2.indexOf(begin));
                 }
                 // Key for blockCipher
                 String blockCipherKey = "Aku cinta kamu Kriptografi";
+                // console to logcat the message2
+                Log.d("message2", message2);
                 // encrypt the message
-                String encryptedMessage = "";
-                encryptedMessage = blockCipher.encrypt(message, blockCipherKey);
+                String encryptedMessage = blockCipher.encrypt(message2, blockCipherKey);
                 messageContentView.setText(encryptedMessage);
+                Log.d("isi semua", messageContentView.getText().toString());
                 signButton.performClick();
             }
         });

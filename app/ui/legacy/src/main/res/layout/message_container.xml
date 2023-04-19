@@ -81,17 +81,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/decryptedResult"
                 android:layout_marginEnd="5dp"
                 android:text="Decrypt"
                 android:textStyle="bold"
                 android:backgroundTint="@color/material_deep_orange_900"/>
             <TextView
-                android:id="@+id/signature_text"
+                android:id="@+id/decryptedResult"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:padding="8dp"
+                tools:text="Unsigned text content"
+                android:textColor="@color/design_default_color_primary"
+                android:textStyle="bold"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

@@ -25,7 +25,7 @@ class ECDSA {
     }
     fun sign(privateKey: BigInteger, message: String): Pair<BigInteger,BigInteger> {
         val hashMessage = BigInteger(hash.keccak(256,512, message))
-        Log.d("", hashMessage.toString())
+//        Log.d("", hashMessage.toString())
         // val hashMessage = message.hashCode().toBigInteger()
         var k : BigInteger
         var r : BigInteger
