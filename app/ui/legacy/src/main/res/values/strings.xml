@@ -11,6 +11,7 @@
     <string name="unread_widget_label">K-9 Unread</string>
 
     <string name="key_generator">Generate a key</string>
+    <string name="signature_sign_key">Private key for Signature</string>
 
     <!-- Used in the about dialog -->
     <string name="app_authors">The K-9 Dog Walkers</string>
@@ -1343,4 +1344,6 @@ You can keep this message and use it as a backup for your secret key. If you wan
     <string name="clipboard_label_email_address">Email address</string>
     <!-- A user visible label for the name and email address copied to the clipboard -->
     <string name="clipboard_label_name_and_email_address">Name and email address</string>
+    <string name="submit">Submit</string>
+    <string name="public_key_for_verifying_signature">Public key for verifying signature</string>
 </resources>
