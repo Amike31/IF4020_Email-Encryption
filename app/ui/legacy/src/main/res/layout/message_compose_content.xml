@@ -82,25 +82,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/signatureModif"
+                app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginEnd="5dp"
                 android:layout_marginBottom="5dp"
                 android:text="Encrypt"
                 android:textStyle="bold"
                 android:backgroundTint="@color/material_deep_orange_900"/>
-
-            <TextView
-                android:id="@+id/signatureModif"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="here is your signature"
-                android:textStyle="italic|bold"
-                android:minLines="1"
-                android:paddingLeft="12dip"
-                android:paddingRight="12dip"
-                android:layout_marginBottom="15dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <EditText

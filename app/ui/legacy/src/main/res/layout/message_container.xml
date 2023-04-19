@@ -71,24 +71,28 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toTopOf="@id/decryptButton"
                 android:layout_marginEnd="5dp"
                 android:text="Verify"
                 android:textStyle="bold"
                 android:backgroundTint="@color/material_green_900"/>
+            <Button
+                android:id="@+id/decryptButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginEnd="5dp"
+                android:text="Decrypt"
+                android:textStyle="bold"
+                android:backgroundTint="@color/material_deep_orange_900"/>
             <TextView
                 android:id="@+id/signature_text"
                 android:layout_height="wrap_content"
                 android:layout_width="fill_parent"
-                android:padding="8dp"
-                tools:text="Unsigned text content"
-                android:textColor="@color/design_default_color_primary"
-                android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/verifyButton"/>
+                app:layout_constraintBottom_toBottomOf="parent"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
-
-
     </LinearLayout>
 
     <!-- Attachments area -->

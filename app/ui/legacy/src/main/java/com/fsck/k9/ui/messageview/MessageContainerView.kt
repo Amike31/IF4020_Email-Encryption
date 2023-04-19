@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.util.AttributeSet
+import android.util.Log
 import android.view.ContextMenu
 import android.view.ContextMenu.ContextMenuInfo
 import android.view.LayoutInflater
@@ -58,10 +59,9 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
     private lateinit var unsignedTextContainer: View
     private lateinit var unsignedTextDivider: View
     private lateinit var unsignedText: TextView
-    private lateinit var signatureText: TextView
     private lateinit var verifyButton: Button
+    private lateinit var decryptButton: Button
     private lateinit var messageText: String
-    private lateinit var signatureResult: Pair<BigInteger, BigInteger>
     private val ecdsa: ECDSA = ECDSA()
 
     private var isShowingPictures = false
@@ -93,15 +93,34 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
         unsignedTextContainer = findViewById(R.id.message_unsigned_container)
         unsignedTextDivider = findViewById(R.id.message_unsigned_divider)
         unsignedText = findViewById(R.id.message_unsigned_text)
-        signatureText = findViewById(R.id.signature_text)
         verifyButton = findViewById(R.id.verifyButton)
+        decryptButton = findViewById(R.id.decryptButton)
 
         verifyButton.setOnClickListener {
-            val keyPair = ecdsa.generateKeyPair(BigInteger("1234567890"))
-            val isSame = ecdsa.verify(keyPair.publicKey, messageText, signatureResult)
-//            count = count == N ? 0 : count + 1;
-            val str = if(!isSame) "Signature isn't Valid" else "Signature is Valid"
-            Toast.makeText(context, "$str", Toast.LENGTH_LONG).show()
+            val htmlBeforeMessage = "<div dir=\"auto\">"
+            val begin = "<br><br>---    BEGIN of ECDSA    ---<br>"
+            val separator = "<hr>"
+            val end = "<br>---    END of ECDSA    ---"
+            // Separate the message and the signature
+            val signatureText = messageText?.substringAfter(begin)?.substringBefore(end)
+            val notNullSignature: String = signatureText ?: ""
+            if (notNullSignature == "") {
+                Toast.makeText(context, "No signature found", Toast.LENGTH_LONG).show()
+//                return@setOnClickListener
+            }
+            else {
+                val messageOnly = messageText.substringAfter(htmlBeforeMessage).substringBefore(begin)
+                val r = notNullSignature.substringBefore(separator)
+                val s = notNullSignature.substringAfter(separator)
+                // convert r and s to BigInteger then make a signature as a pair of r and s
+                val signature = Pair(BigInteger(r), BigInteger(s))
+                val keyPair = ecdsa.generateKeyPair(BigInteger("1234567890"))
+                val isSame = ecdsa.verify(keyPair.publicKey, messageOnly, signature)
+                val str = if(!isSame) "Signature isn't Valid" else "Signature is Valid"
+                Toast.makeText(context, "$str", Toast.LENGTH_SHORT).show()
+            }
+            // divide the signature into r and s by the separator
+
         }
     }
 
@@ -428,12 +447,6 @@ class MessageContainerView(context: Context, attrs: AttributeSet?) :
 
         unsignedTextContainer.visibility = VISIBLE
         unsignedTextDivider.visibility = GONE
-        signatureResult = ecdsa.sign(BigInteger("1234567890"), messageText)
-        val r = signatureResult.first
-        val s = signatureResult.second
-        val begin = "--- BEGIN of ECDSA ---"
-        val end = "--- END of ECDSA ---"
-        signatureText.text = "$begin\n\n$r\n\n$end"
 
         if (!messageViewInfo.extraText.isNullOrEmpty()) {
             // unsignedTextContainer.isVisible = true

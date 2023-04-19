@@ -236,7 +236,6 @@ public class MessageCompose extends K9Activity implements OnClickListener,
     private EditText messageContentView;
     private Button signButton;
     private Button encryptButton;
-    private TextView signatureModif;
     private ECDSA ecdsa = new ECDSA();
     private LinearLayout attachmentsView;
 
@@ -349,7 +348,6 @@ public class MessageCompose extends K9Activity implements OnClickListener,
         messageContentView.getInputExtras(true).putBoolean("allowEmoji", true);
         signButton = findViewById(R.id.button_Signature);
         encryptButton = findViewById(R.id.button_Encrpyt);
-        signatureModif = findViewById(R.id.signatureModif);
 
         attachmentsView = findViewById(R.id.attachments);
 
@@ -385,15 +383,26 @@ public class MessageCompose extends K9Activity implements OnClickListener,
 
         subjectView.setOnFocusChangeListener(this);
         messageContentView.setOnFocusChangeListener(this);
+
         signButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = String.valueOf(messageContentView.getText());
+                String begin = "\n\n---    BEGIN of ECDSA    ---\n";
+                String separator = "\n----------------------------------------\n";
+                String end = "\n---    END of ECDSA    ---";
+                String message = messageContentView.getText().toString();
+                // If there is the signature, remove it
+                // first, check if the message contains the signature
+                if (message.contains(begin) && message.contains(end)) {
+                    // get the message only without signature
+                    message = message.substring(0, message.indexOf(begin));
+                }
+                // add signature to the message
                 BigInteger privateKey = new BigInteger("1234567890");
                 Pair signatureResult = ecdsa.sign(privateKey, message);
                 BigInteger r = (BigInteger) signatureResult.getFirst();
                 BigInteger s = (BigInteger) signatureResult.getSecond();
-                signatureModif.setText(r.toString());
+                messageContentView.setText(message + begin + r + separator + s + end);
             }
         });
 
